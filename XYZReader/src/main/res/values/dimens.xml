@@ -1,0 +1,25 @@
+<resources>
+    <!-- detail -->
+    <dimen name="app_bar_height">120dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="logo_margin_top">12dp</dimen>
+    <dimen name="detail_app_bar_height">260dp</dimen>
+    <dimen name="detail_collapsing_toolbar_margin_top">58dp</dimen>
+    <dimen name="detail_collapsing_toolbar_lateral_margin">16dp</dimen>
+    <dimen name="pages_counter_padding_top">50dp</dimen>
+    <dimen name="pages_counter_test_size">18sp</dimen>
+    <dimen name="body_top_margin_helper">50dp</dimen>
+    <dimen name="body_card_view_lateral_margin">16dp</dimen>
+    <dimen name="body_card_view_elevation">12dp</dimen>
+    <dimen name="body_card_view_corner_radius">6dp</dimen>
+    <dimen name="body_text_padding">16dp</dimen>
+    <dimen name="body_bottom_hint_helper_height">80dp</dimen>
+    <dimen name="detail_subtitle_padding">16dp</dimen>
+    <dimen name="main_item_card_view_padding">4dp</dimen>
+    <dimen name="main_item_texts_padding">16dp</dimen>
+    <dimen name="main_title_padding_bottom">4dp</dimen>
+    <dimen name="main_article_title_size">18sp</dimen>
+    <dimen name="main_article_subtitle_size">12sp</dimen>
+    <dimen name="body_text_size">16sp</dimen>
+    <dimen name="main_card_view_elevation">12dp</dimen>
+</resources>

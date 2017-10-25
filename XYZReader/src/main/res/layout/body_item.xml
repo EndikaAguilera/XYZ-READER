@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/detail_card_view_nested_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:transitionGroup="true"
+    tools:context=".ui.ArticleDetailActivity"
+    tools:showIn="@layout/activity_article_detail">
+
+    <LinearLayout
+        android:id="@+id/detail_card_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/top_margin_helper_view"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/body_top_margin_helper" />
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/body_item_card_view"
+            style="@style/DetailsBodyCardView"
+            app:cardCornerRadius="@dimen/body_card_view_corner_radius">
+
+            <TextView
+                android:id="@+id/article_body"
+                style="@style/DetailsBodyView" />
+
+        </android.support.v7.widget.CardView>
+
+        <TextView
+            android:id="@+id/swipe_hint_text_view"
+            style="@style/DetailsSwipeHintView" />
+
+    </LinearLayout>
+
+</android.support.v4.widget.NestedScrollView>

@@ -1,0 +1,23 @@
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/article_item_card_view"
+    style="@style/MainCardView">
+
+    <LinearLayout
+        android:id="@+id/meta_bar"
+        style="@style/MainCardViewLinearLayout">
+
+        <ImageView
+            android:id="@+id/thumbnail"
+            style="@style/MainCardViewImageView"
+            android:contentDescription="@string/app_name" />
+
+        <TextView
+            android:id="@+id/article_title"
+            style="@style/MainCardViewTitleView" />
+
+        <TextView
+            android:id="@+id/article_subtitle"
+            style="@style/MainCardViewSubTitleView" />
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>

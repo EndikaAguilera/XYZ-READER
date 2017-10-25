@@ -1,0 +1,12 @@
+<resources>
+    <!-- detail -->
+    <dimen name="app_bar_height">240dp</dimen>
+    <dimen name="fab_margin">40dp</dimen>
+    <dimen name="detail_app_bar_height">380dp</dimen>
+    <dimen name="detail_collapsing_toolbar_margin_top">74dp</dimen>
+    <dimen name="detail_collapsing_toolbar_lateral_margin">32dp</dimen>
+    <dimen name="detail_subtitle_padding">32dp</dimen>
+    <dimen name="main_article_title_size">24sp</dimen>
+    <dimen name="main_article_subtitle_size">18sp</dimen>
+    <dimen name="body_text_size">20sp</dimen>
+</resources>

@@ -1,0 +1,10 @@
+<resources>
+
+    <string name="app_name">XYZ Reader</string>
+
+    <string name="action_share">Share</string>
+
+    <string name="image_transition">image_transition</string>
+    <string name="swipe_page_hint">Swipe left or right to switch pages.</string>
+
+</resources>

@@ -1,0 +1,177 @@
+<!-- File created by the Android Action Bar Style Generator
+
+     Copyright (C) 2012 readyState Software Ltd
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+  
+          http://www.apache.org/licenses/LICENSE-2.0
+  
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/theme_primary</item>
+        <item name="colorPrimaryDark">@color/theme_primary_dark</item>
+        <item name="colorAccent">@color/theme_accent</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="LogoStyle" parent="AppTheme.NoActionBar">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginTop">@dimen/logo_margin_top</item>
+        <item name="android:scaleType">fitXY</item>
+        <item name="android:src">@drawable/logo</item>
+    </style>
+
+    <style name="MainRecyclerView" parent="AppTheme.NoActionBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:scrollbarStyle">outsideOverlay</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="MainOnRefreshHelper" parent="AppTheme.NoActionBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@color/on_refresh_background_color</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="MainCardView" parent="AppTheme.NoActionBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">@dimen/main_item_card_view_padding</item>
+        <item name="android:clickable">true</item>
+        <item name="android:elevation">@dimen/main_card_view_elevation</item>
+        <item name="android:focusable">true</item>
+        <item name="android:foreground">?selectableItemBackground</item>
+    </style>
+
+    <style name="MainCardViewLinearLayout" parent="AppTheme.NoActionBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/theme_primary_dark</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="MainCardViewImageView" parent="AppTheme.NoActionBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:adjustViewBounds">true</item>
+        <item name="android:background">@color/photo_placeholder</item>
+        <item name="android:scaleType">fitXY</item>
+        <item name="android:transitionName">@string/image_transition</item>
+    </style>
+
+    <style name="MainCardViewTitleView" parent="AppTheme.NoActionBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@android:drawable/screen_background_light_transparent</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">@integer/main_item_title_max_lines</item>
+        <item name="android:paddingBottom">@dimen/main_title_padding_bottom</item>
+        <item name="android:paddingLeft">@dimen/main_item_texts_padding</item>
+        <item name="android:paddingRight">@dimen/main_item_texts_padding</item>
+        <item name="android:paddingTop">@dimen/main_item_texts_padding</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">@dimen/main_article_title_size</item>
+    </style>
+
+    <style name="MainCardViewSubTitleView" parent="AppTheme.NoActionBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@android:drawable/screen_background_light_transparent</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">@integer/main_item_subtitle_max_lines</item>
+        <item name="android:paddingBottom">@dimen/main_item_texts_padding</item>
+        <item name="android:paddingLeft">@dimen/main_item_texts_padding</item>
+        <item name="android:paddingRight">@dimen/main_item_texts_padding</item>
+        <item name="android:textColor">@color/theme_primary</item>
+        <item name="android:textSize">@dimen/main_article_subtitle_size</item>
+    </style>
+
+    <style name="DetailImageView" parent="AppTheme.NoActionBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:fitsSystemWindows">true</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="android:transitionName">@string/image_transition</item>
+    </style>
+
+    <style name="DetailsMetaBarLinearLayout" parent="AppTheme.NoActionBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:background">@drawable/background_gradient_vertical</item>
+        <item name="android:gravity">bottom</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">@dimen/detail_subtitle_padding</item>
+    </style>
+
+    <style name="DetailsPageCounterView" parent="AppTheme.NoActionBar">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">serif</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">@dimen/pages_counter_padding_top</item>
+        <item name="android:textColor">@color/dkgray</item>
+        <item name="android:textSize">@dimen/pages_counter_test_size</item>
+        <item name="android:textStyle">bold|italic</item>
+    </style>
+
+    <style name="DetailsBodyCardView" parent="AppTheme.NoActionBar">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginEnd">@dimen/body_card_view_lateral_margin</item>
+        <item name="android:layout_marginStart">@dimen/body_card_view_lateral_margin</item>
+        <item name="android:clickable">true</item>
+        <item name="android:elevation">@dimen/body_card_view_elevation</item>
+        <item name="android:focusable">true</item>
+        <item name="android:foreground">?selectableItemBackground</item>
+    </style>
+
+    <style name="DetailsBodyView" parent="AppTheme.NoActionBar">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:autoLink">all</item>
+        <item name="android:padding">@dimen/body_text_padding</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textColor">@color/ltgray</item>
+        <item name="android:textColorLink">@color/theme_accent</item>
+        <item name="android:textSize">@dimen/body_text_size</item>
+    </style>
+
+    <style name="DetailsSwipeHintView" parent="AppTheme.NoActionBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/body_bottom_hint_helper_height</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:fontFamily">serif</item>
+        <item name="android:gravity">center</item>
+        <item name="android:text">@string/swipe_page_hint</item>
+        <item name="android:textColor">@color/dkgray</item>
+        <item name="android:textStyle">italic</item>
+    </style>
+
+</resources>
