@@ -32,6 +32,7 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <FrameLayout
+                android:id="@+id/detail_frame_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fitsSystemWindows="true">
@@ -49,7 +50,7 @@
                     <TextView
                         android:id="@+id/article_subtitle"
                         style="?android:attr/textAppearanceSmall"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
                 </LinearLayout>

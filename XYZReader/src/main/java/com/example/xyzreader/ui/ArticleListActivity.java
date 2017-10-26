@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -19,6 +20,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateUtils;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,6 +83,10 @@ public class ArticleListActivity extends AppCompatActivity implements
 
         ButterKnife.bind(this);
 
+        getWindow().setSharedElementEnterTransition(
+                TransitionInflater
+                        .from(ArticleListActivity.this).inflateTransition(R.transition.curve));
+
         Toolbar mToolbar = findViewById(R.id.toolbar);
 
         if (mToolbar != null) {
@@ -140,8 +146,16 @@ public class ArticleListActivity extends AppCompatActivity implements
 
     private void updateRefreshingUI() {
 
-        if (mIsRefreshing) mOnRefreshBackgroundView.setVisibility(View.VISIBLE);
-        else mOnRefreshBackgroundView.setVisibility(View.GONE);
+        if (mIsRefreshing) {
+            mOnRefreshBackgroundView.setVisibility(View.VISIBLE);
+
+            Snackbar.make(mOnRefreshBackgroundView,
+                    R.string.loading_data_msg, Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+
+        } else {
+            mOnRefreshBackgroundView.setVisibility(View.GONE);
+        }
 
         mSwipeRefreshLayout.setRefreshing(mIsRefreshing);
     }
@@ -196,26 +210,51 @@ public class ArticleListActivity extends AppCompatActivity implements
         }
 
         private void setOnItemClick(ArticleViewHolder holder) {
+
             View statusBar = findViewById(android.R.id.statusBarBackground);
+            View navigationBar = findViewById(android.R.id.navigationBarBackground);
 
             Pair<View, String> p0 =
                     Pair.create(statusBar,
                             Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME);
+            Pair<View, String> p1 =
+                    Pair.create(navigationBar,
+                            Window.NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME);
             Pair<View, String> p2 =
                     Pair.create((View) holder.thumbnailView,
                             holder.thumbnailView.getTransitionName());
 
-            final Pair[] pairs = new Pair[]{
-                    p0, p2
-            };
+            Pair[] pairs;
 
-            @SuppressWarnings("unchecked") ActivityOptionsCompat options =
-                    makeSceneTransitionAnimation(ArticleListActivity.this, pairs);
+            if (statusBar == null && navigationBar == null && holder.thumbnailView == null) {
+                pairs = null;
+            } else if (statusBar != null && navigationBar != null && holder.thumbnailView != null) {
+                pairs = new Pair[]{p0, p1, p2};
+            } else if (statusBar == null && navigationBar != null && holder.thumbnailView != null) {
+                pairs = new Pair[]{p1, p2};
+            } else if (statusBar != null && navigationBar == null && holder.thumbnailView != null) {
+                pairs = new Pair[]{p0, p2};
+            } else {
+                pairs = null;
+            }
 
-            Intent intent = new Intent(Intent.ACTION_VIEW,
-                    ItemsContract.Items.buildItemUri(getItemId(holder.getAdapterPosition())));
-            intent.putExtra(ARG_ITEM_ID, getItemId(holder.getAdapterPosition()));
-            startActivity(intent, options.toBundle());
+            if (pairs != null) {
+                @SuppressWarnings("unchecked") ActivityOptionsCompat options =
+                        makeSceneTransitionAnimation(ArticleListActivity.this, pairs);
+
+                Intent intent = new Intent(Intent.ACTION_VIEW,
+                        ItemsContract.Items.buildItemUri(getItemId(holder.getAdapterPosition())));
+                intent.putExtra(ARG_ITEM_ID, getItemId(holder.getAdapterPosition()));
+
+                startActivity(intent, options.toBundle());
+            } else {
+                Intent intent = new Intent(Intent.ACTION_VIEW,
+                        ItemsContract.Items.buildItemUri(getItemId(holder.getAdapterPosition())));
+                intent.putExtra(ARG_ITEM_ID, getItemId(holder.getAdapterPosition()));
+
+                startActivity(intent);
+            }
+
         }
 
         private Date parsePublishedDate() {

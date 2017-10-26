@@ -6,5 +6,6 @@
 
     <string name="image_transition">image_transition</string>
     <string name="swipe_page_hint">Swipe left or right to switch pages.</string>
+    <string name="loading_data_msg">Loading data please wait…</string>
 
 </resources>

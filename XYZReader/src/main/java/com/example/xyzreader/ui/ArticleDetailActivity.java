@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -23,10 +24,15 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.format.DateUtils;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -66,6 +72,9 @@ public class ArticleDetailActivity extends AppCompatActivity implements
     @BindView(R.id.detail_collapsing_toolbar)
     CollapsingToolbarLayout mCollapsingToolbar;
     @SuppressWarnings({"WeakerAccess", "CanBeFinal"})
+    @BindView(R.id.details_toolbar)
+    Toolbar mToolbar;
+    @SuppressWarnings({"WeakerAccess", "CanBeFinal"})
     @BindView(R.id.article_subtitle)
     TextView mByLineView;
     @SuppressWarnings({"WeakerAccess", "CanBeFinal"})
@@ -74,12 +83,14 @@ public class ArticleDetailActivity extends AppCompatActivity implements
     @SuppressWarnings({"WeakerAccess", "CanBeFinal"})
     @BindView(R.id.pages_counter_text_view)
     TextView mPageCounterView;
+    @SuppressWarnings({"WeakerAccess", "CanBeFinal"})
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
 
     private SectionsPagerAdapter adapter;
 
     private Cursor mCursor;
     private long mItemId;
-    //private int mMutedColor = 0xFF333333;
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss",
             Locale.getDefault());
@@ -91,6 +102,11 @@ public class ArticleDetailActivity extends AppCompatActivity implements
 
     private AsyncTask<Void, Void, List<CharSequence>> mLoadTask;
 
+    private Animation initialAnim;
+    private Animation showAnim;
+
+    private boolean isInitAnim = true;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,23 +116,49 @@ public class ArticleDetailActivity extends AppCompatActivity implements
 
         getWindow().setStatusBarColor(Color.TRANSPARENT);
 
-        Toolbar mToolbar = findViewById(R.id.details_toolbar);
+        // Postpone the transition until the window's decor view has
+        // finished its layout.
+        postponeEnterTransition();
 
-        if (mToolbar != null) {
-            setSupportActionBar(mToolbar);
+        final View decor = getWindow().getDecorView();
+        decor.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                decor.getViewTreeObserver().removeOnPreDrawListener(this);
+                startPostponedEnterTransition();
+                return true;
+            }
+        });
 
-            if (getSupportActionBar() != null)
-                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getWindow().setSharedElementEnterTransition(TransitionInflater
+                .from(this).inflateTransition(R.transition.curve));
 
-            mToolbar.setNavigationIcon(R.drawable.ic_arrow_back);
-            mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onBackPressed();
-                }
-            });
+        getWindow().getSharedElementEnterTransition().addListener(new Transition.TransitionListener() {
+            @Override
+            public void onTransitionStart(Transition transition) {
+                if (isInitAnim) {
+                    setInitialAnim();
+                    isInitAnim = false;
+                } else animHideAll();
+            }
 
-        }
+            @Override
+            public void onTransitionEnd(Transition transition) {
+                animShowAll();
+            }
+
+            @Override
+            public void onTransitionCancel(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionPause(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionResume(Transition transition) {
+            }
+        });
 
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
@@ -124,17 +166,6 @@ public class ArticleDetailActivity extends AppCompatActivity implements
         if (extras != null && extras.containsKey(ARG_ITEM_ID)) {
             mItemId = extras.getLong(ARG_ITEM_ID);
         }
-
-        findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(Intent.createChooser(ShareCompat.IntentBuilder
-                        .from(ArticleDetailActivity.this)
-                        .setType("text/plain")
-                        .setText(getShareContent())
-                        .getIntent(), getString(R.string.action_share)));
-            }
-        });
 
         getSupportLoaderManager().initLoader(0, null, ArticleDetailActivity.this);
 
@@ -155,6 +186,86 @@ public class ArticleDetailActivity extends AppCompatActivity implements
         }
     }
 
+    private void setInitialAnim() {
+
+        mCollapsingToolbar.setTitleEnabled(false);
+
+        // clear animations
+        mToolbar.clearAnimation();
+        mByLineView.clearAnimation();
+        mPageCounterView.clearAnimation();
+        fab.clearAnimation();
+
+        // start animations
+        initialAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.initial_anim);
+        mToolbar.startAnimation(initialAnim);
+        initialAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.initial_anim);
+        mByLineView.startAnimation(initialAnim);
+        initialAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.initial_anim);
+        mPageCounterView.startAnimation(initialAnim);
+        initialAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.initial_anim);
+        fab.startAnimation(initialAnim);
+/*
+        View v = makeCollapsingToolbarLayoutLooksGood(mCollapsingToolbar);
+        if (v == null) return;
+        initialAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.initial_anim);
+        v.startAnimation(initialAnim);
+*/    }
+
+    private void animHideAll() {
+        // clear animations
+
+        mCollapsingToolbar.setTitleEnabled(false);
+
+        mToolbar.clearAnimation();
+        mByLineView.clearAnimation();
+        mPageCounterView.clearAnimation();
+        fab.clearAnimation();
+
+        // start animations
+        Animation hideAnim;
+        hideAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.hide_anim);
+        mToolbar.startAnimation(hideAnim);
+        hideAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.hide_anim);
+        mByLineView.startAnimation(hideAnim);
+        hideAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.hide_anim);
+        mPageCounterView.startAnimation(hideAnim);
+        hideAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.hide_anim);
+        fab.startAnimation(hideAnim);
+
+  /*      View v = makeCollapsingToolbarLayoutLooksGood(mCollapsingToolbar);
+        if (v == null) return;
+        hideAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.hide_anim);
+        v.startAnimation(hideAnim);
+    */}
+
+    private void animShowAll() {
+        // clear animations
+
+        mCollapsingToolbar.setTitleEnabled(true);
+
+        mToolbar.clearAnimation();
+        mByLineView.clearAnimation();
+        mPageCounterView.clearAnimation();
+        fab.clearAnimation();
+
+        // start animations
+        showAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.show_anim);
+        mToolbar.startAnimation(showAnim);
+        showAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.show_anim);
+        mByLineView.startAnimation(showAnim);
+        showAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.show_anim);
+        mPageCounterView.startAnimation(showAnim);
+        showAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.show_anim);
+        fab.startAnimation(showAnim);
+
+      /*  View v = makeCollapsingToolbarLayoutLooksGood(mCollapsingToolbar);
+        if (v == null) return;
+        showAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.show_anim);
+        v.startAnimation(showAnim);
+    */}
+
+
     private Date parsePublishedDate() {
         try {
             String date = mCursor.getString(ArticleLoader.Query.PUBLISHED_DATE);
@@ -168,11 +279,34 @@ public class ArticleDetailActivity extends AppCompatActivity implements
 
     private void bindViews() {
 
-        //bylineView.setMovementMethod(new LinkMovementMethod());
+        if (mToolbar != null) {
+            setSupportActionBar(mToolbar);
 
-        //final TextView bodyTextView = findViewById(R.id.body_text_view);
+            if (getSupportActionBar() != null)
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+            mToolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+            mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onBackPressed();
+                }
+            });
+
+        }
 
         if (mCursor != null) {
+
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startActivity(Intent.createChooser(ShareCompat.IntentBuilder
+                            .from(ArticleDetailActivity.this)
+                            .setType("text/plain")
+                            .setText(getShareContent())
+                            .getIntent(), getString(R.string.action_share)));
+                }
+            });
 
             mCollapsingToolbar.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
 
@@ -255,6 +389,9 @@ public class ArticleDetailActivity extends AppCompatActivity implements
                 @Override
                 protected void onPostExecute(List<CharSequence> charSequences) {
                     super.onPostExecute(charSequences);
+
+                    if (charSequences == null) return;
+
                     adapter = new
                             SectionsPagerAdapter(getSupportFragmentManager(), charSequences);
                     mViewPager.setOffscreenPageLimit(1);
@@ -263,7 +400,20 @@ public class ArticleDetailActivity extends AppCompatActivity implements
                     int currentPos = mViewPager.getCurrentItem() + 1;
                     setPageCounterText(currentPos + "/" + adapter.getCount());
 
-                    Log.i(TAG, "splitter pages count = " + charSequences.size());
+                    initialAnim = AnimationUtils
+                            .loadAnimation(ArticleDetailActivity.this, R.anim.initial_anim);
+                    mPageCounterView.clearAnimation();
+                    mPageCounterView.startAnimation(initialAnim);
+
+                    mPageCounterView.clearAnimation();
+                    mViewPager.clearAnimation();
+                    showAnim = AnimationUtils
+                            .loadAnimation(ArticleDetailActivity.this, R.anim.show_anim);
+                    mPageCounterView.startAnimation(showAnim);
+                    showAnim = AnimationUtils
+                            .loadAnimation(ArticleDetailActivity.this, R.anim.show_anim);
+                    mViewPager.startAnimation(showAnim);
+                    
                 }
 
             };
@@ -307,6 +457,7 @@ public class ArticleDetailActivity extends AppCompatActivity implements
             //bodyTextView.setText("N/A");
             setPageCounterText("N/A");
         }
+
     }
 
     private Spanned getFormattedBookText(String text) {
