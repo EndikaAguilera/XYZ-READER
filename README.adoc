@@ -1,3 +1,0 @@
-= XYZ Reader Starter Code
-
-Submission for XYZ Reader project in Udacity Android Nanodegree.
