@@ -35,6 +35,10 @@ public class UpdaterService extends IntentService {
     protected void onHandleIntent(Intent intent) {
 
         ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        if (cm == null) {
+            Log.w(TAG, "cm, is null.");
+            return;
+        }
         NetworkInfo ni = cm.getActiveNetworkInfo();
         if (ni == null || !ni.isConnected()) {
             Log.w(TAG, "Not online, not refreshing.");

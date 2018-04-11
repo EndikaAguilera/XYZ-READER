@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -39,6 +39,9 @@ import android.widget.TextView;
 import com.bumptech.glide.request.target.Target;
 import com.example.xyzreader.GlideApp;
 import com.example.xyzreader.R;
+import com.example.xyzreader.async.SplitBookAsync;
+import com.example.xyzreader.async.SplitBookCallback;
+import com.example.xyzreader.custom.PageSplitter;
 import com.example.xyzreader.data.ArticleLoader;
 
 import java.text.ParseException;
@@ -59,7 +62,8 @@ import static com.example.xyzreader.ui.ArticleListActivity.getSerifTypeFace;
  */
 public class ArticleDetailActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>,
-        AppBarLayout.OnOffsetChangedListener {
+        AppBarLayout.OnOffsetChangedListener,
+        SplitBookCallback {
 
     private static final String TAG = ArticleDetailActivity.class.getSimpleName();
 
@@ -100,7 +104,7 @@ public class ArticleDetailActivity extends AppCompatActivity implements
     // Most time functions can only handle 1902 - 2037
     private final GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
 
-    private AsyncTask<Void, Void, List<CharSequence>> mLoadTask;
+    private SplitBookAsync mLoadTask = null;
 
     private Animation initialAnim;
     private Animation showAnim;
@@ -181,7 +185,7 @@ public class ArticleDetailActivity extends AppCompatActivity implements
     protected void onStop() {
         super.onStop();
         mDetailsAppbar.removeOnOffsetChangedListener(this);
-        if (mLoadTask != null) {
+        if (mLoadTask != null && !mLoadTask.isCancelled()) {
             mLoadTask.cancel(true);
         }
     }
@@ -210,7 +214,8 @@ public class ArticleDetailActivity extends AppCompatActivity implements
         if (v == null) return;
         initialAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.initial_anim);
         v.startAnimation(initialAnim);
-*/    }
+*/
+    }
 
     private void animHideAll() {
         // clear animations
@@ -237,7 +242,8 @@ public class ArticleDetailActivity extends AppCompatActivity implements
         if (v == null) return;
         hideAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.hide_anim);
         v.startAnimation(hideAnim);
-    */}
+    */
+    }
 
     private void animShowAll() {
         // clear animations
@@ -263,7 +269,8 @@ public class ArticleDetailActivity extends AppCompatActivity implements
         if (v == null) return;
         showAnim = AnimationUtils.loadAnimation(ArticleDetailActivity.this, R.anim.show_anim);
         v.startAnimation(showAnim);
-    */}
+    */
+    }
 
 
     private Date parsePublishedDate() {
@@ -321,16 +328,18 @@ public class ArticleDetailActivity extends AppCompatActivity implements
 
             Date publishedDate = parsePublishedDate();
             if (!publishedDate.before(START_OF_EPOCH.getTime())) {
-                mByLineView.setText(DateUtils.getRelativeTimeSpanString(
+                String str = DateUtils.getRelativeTimeSpanString(
                         publishedDate.getTime(),
                         System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
                         DateUtils.FORMAT_ABBREV_ALL).toString()
                         + "\nby "
-                        + mCursor.getString(ArticleLoader.Query.AUTHOR));
+                        + mCursor.getString(ArticleLoader.Query.AUTHOR);
+                mByLineView.setText(str);
             } else {
-                mByLineView.setText(outputFormat.format(publishedDate)
+                String str = outputFormat.format(publishedDate)
                         + "\nby "
-                        + mCursor.getString(ArticleLoader.Query.AUTHOR));
+                        + mCursor.getString(ArticleLoader.Query.AUTHOR);
+                mByLineView.setText(str);
             }
 
             ImageView mPhotoView = findViewById(R.id.thumbnail);
@@ -340,83 +349,15 @@ public class ArticleDetailActivity extends AppCompatActivity implements
                     //.circleCrop()
                     .override(Target.SIZE_ORIGINAL)
                     .into(mPhotoView);
+            
+            if (mLoadTask != null && !mLoadTask.isCancelled()) {
+                mLoadTask.cancel(true);
+                mLoadTask = null;
+            }
 
-
-            mLoadTask = new AsyncTask<Void, Void, List<CharSequence>>() {
-
-                @Override
-                protected List<CharSequence> doInBackground(Void... voids) {
-
-
-                    if (mCursor == null) return null;
-
-                    final Spanned bodyText =
-                            getFormattedBookText(mCursor.getString(ArticleLoader.Query.BODY));
-
-                    int desiredDimen;
-
-                    // catch mid dimen between device height and width
-                    if (getResources().getDisplayMetrics().heightPixels
-                            > getResources().getDisplayMetrics().widthPixels) {
-                        int dif = (getResources().getDisplayMetrics().heightPixels -
-                                getResources().getDisplayMetrics().widthPixels) / 2;
-                        desiredDimen = getResources().getDisplayMetrics().heightPixels - dif;
-                    } else {
-                        int dif = (getResources().getDisplayMetrics().widthPixels -
-                                getResources().getDisplayMetrics().heightPixels) / 2;
-                        desiredDimen = getResources().getDisplayMetrics().widthPixels - dif;
-                    }
-
-                    final PageSplitter pageSplitter =
-                            new PageSplitter(desiredDimen,
-                                    desiredDimen * 2,
-                                    1f,
-                                    1f);
-
-                    pageSplitter.append(bodyText.toString());
-
-                    TextPaint mPaintDetail = new TextPaint();
-                    mPaintDetail.setColor(Color.DKGRAY);
-                    mPaintDetail.setShadowLayer(2.0f, 0f, 2.0f, Color.DKGRAY);
-                    mPaintDetail.setTextSize(18 * getResources().getDisplayMetrics().density);
-                    mPaintDetail.setAntiAlias(true);
-
-                    pageSplitter.split(mPaintDetail);
-
-                    return pageSplitter.getPages();
-                }
-
-                @Override
-                protected void onPostExecute(List<CharSequence> charSequences) {
-                    super.onPostExecute(charSequences);
-
-                    if (charSequences == null) return;
-
-                    adapter = new
-                            SectionsPagerAdapter(getSupportFragmentManager(), charSequences);
-                    mViewPager.setOffscreenPageLimit(1);
-                    mViewPager.setAdapter(adapter);
-
-                    int currentPos = mViewPager.getCurrentItem() + 1;
-                    setPageCounterText(currentPos + "/" + adapter.getCount());
-
-                    initialAnim = AnimationUtils
-                            .loadAnimation(ArticleDetailActivity.this, R.anim.initial_anim);
-                    mPageCounterView.clearAnimation();
-                    mPageCounterView.startAnimation(initialAnim);
-
-                    mPageCounterView.clearAnimation();
-                    mViewPager.clearAnimation();
-                    showAnim = AnimationUtils
-                            .loadAnimation(ArticleDetailActivity.this, R.anim.show_anim);
-                    mPageCounterView.startAnimation(showAnim);
-                    showAnim = AnimationUtils
-                            .loadAnimation(ArticleDetailActivity.this, R.anim.show_anim);
-                    mViewPager.startAnimation(showAnim);
-                    
-                }
-
-            };
+            mLoadTask = new SplitBookAsync();
+            mLoadTask.delegate = this;
+            mLoadTask.execute();
 
             mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
@@ -440,7 +381,6 @@ public class ArticleDetailActivity extends AppCompatActivity implements
 
                 }
             });
-            mLoadTask.execute();
 
             mByLineView.post(new Runnable() {
                 @Override
@@ -477,13 +417,14 @@ public class ArticleDetailActivity extends AppCompatActivity implements
         return result;
     }
 
+    @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return ArticleLoader.newInstanceForItemId(ArticleDetailActivity.this, mItemId);
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         if (data == null) {
             mCursor = null;
             return;
@@ -501,7 +442,7 @@ public class ArticleDetailActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         mCursor = null;
         bindViews();
     }
@@ -525,6 +466,74 @@ public class ArticleDetailActivity extends AppCompatActivity implements
 
     private void setPageCounterText(String text) {
         mPageCounterView.setText(text);
+    }
+
+    @Override
+    public List<CharSequence> splitBookDoInBackground() {
+        if (mCursor == null) return null;
+
+        final Spanned bodyText =
+                getFormattedBookText(mCursor.getString(ArticleLoader.Query.BODY));
+
+        int desiredDimen;
+
+        // catch mid dimen between device height and width
+        if (getResources().getDisplayMetrics().heightPixels
+                > getResources().getDisplayMetrics().widthPixels) {
+            int dif = (getResources().getDisplayMetrics().heightPixels -
+                    getResources().getDisplayMetrics().widthPixels) / 2;
+            desiredDimen = getResources().getDisplayMetrics().heightPixels - dif;
+        } else {
+            int dif = (getResources().getDisplayMetrics().widthPixels -
+                    getResources().getDisplayMetrics().heightPixels) / 2;
+            desiredDimen = getResources().getDisplayMetrics().widthPixels - dif;
+        }
+
+        final PageSplitter pageSplitter =
+                new PageSplitter(desiredDimen,
+                        desiredDimen * 2,
+                        1f,
+                        1f);
+
+        pageSplitter.append(bodyText.toString());
+
+        TextPaint mPaintDetail = new TextPaint();
+        mPaintDetail.setColor(Color.DKGRAY);
+        mPaintDetail.setShadowLayer(2.0f, 0f, 2.0f, Color.DKGRAY);
+        mPaintDetail.setTextSize(18 * getResources().getDisplayMetrics().density);
+        mPaintDetail.setAntiAlias(true);
+
+        pageSplitter.split(mPaintDetail);
+
+        return pageSplitter.getPages();
+    }
+
+    @Override
+    public void splitBookOnPostExecute(List<CharSequence> charSequences) {
+        if (charSequences == null) return;
+
+        adapter = new
+                SectionsPagerAdapter(getSupportFragmentManager(), charSequences);
+        mViewPager.setOffscreenPageLimit(1);
+        mViewPager.setAdapter(adapter);
+
+        int currentPos = mViewPager.getCurrentItem() + 1;
+        setPageCounterText(currentPos + "/" + adapter.getCount());
+
+        initialAnim = AnimationUtils
+                .loadAnimation(ArticleDetailActivity.this, R.anim.initial_anim);
+        mPageCounterView.clearAnimation();
+        mPageCounterView.startAnimation(initialAnim);
+
+        mPageCounterView.clearAnimation();
+        mViewPager.clearAnimation();
+        showAnim = AnimationUtils
+                .loadAnimation(ArticleDetailActivity.this, R.anim.show_anim);
+        mPageCounterView.startAnimation(showAnim);
+        showAnim = AnimationUtils
+                .loadAnimation(ArticleDetailActivity.this, R.anim.show_anim);
+        mViewPager.startAnimation(showAnim);
+
     }
 
     /**
@@ -574,7 +583,7 @@ public class ArticleDetailActivity extends AppCompatActivity implements
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(int sectionNumber, String content) {
+        static PlaceholderFragment newInstance(int sectionNumber, String content) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
@@ -587,7 +596,7 @@ public class ArticleDetailActivity extends AppCompatActivity implements
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.body_item, container, false);
 
@@ -601,13 +610,14 @@ public class ArticleDetailActivity extends AppCompatActivity implements
                 cardView.setLayoutParams(params);
             }
 
-            TextView textView = rootView.findViewById(R.id.article_body);
-            textView.setText(getArguments().getString(ARG_SECTION_CONTENT));
-            if (getAppCustomTypeface(getActivity()) != null)
-                textView.setTypeface(getAppCustomTypeface(getActivity()));
+            if (getArguments() != null && getArguments().containsKey(ARG_SECTION_CONTENT)) {
+                TextView textView = rootView.findViewById(R.id.article_body);
+                textView.setText(getArguments().getString(ARG_SECTION_CONTENT));
+                if (getAppCustomTypeface(getActivity()) != null)
+                    textView.setTypeface(getAppCustomTypeface(getActivity()));
+            }
 
             return rootView;
         }
     }
-
 }

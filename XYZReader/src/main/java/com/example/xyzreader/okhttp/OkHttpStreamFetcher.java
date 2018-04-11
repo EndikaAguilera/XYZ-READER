@@ -86,9 +86,9 @@ class OkHttpStreamFetcher implements DataFetcher<InputStream>,
     }
 
     @Override
-    public void onResponse(Call call, Response response) throws IOException {
+    public void onResponse(Call call, Response response) {
         responseBody = response.body();
-        if (response.isSuccessful()) {
+        if (response.isSuccessful() && responseBody != null) {
             long contentLength = responseBody.contentLength();
             stream = ContentLengthInputStream.obtain(responseBody.byteStream(), contentLength);
             callback.onDataReady(stream);

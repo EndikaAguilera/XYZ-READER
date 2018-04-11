@@ -52,6 +52,14 @@ public class RemoteEndpointUtil {
                 .build();
 
         Response response = client.newCall(request).execute();
-        return response.body().string();
+
+        if (response.body() != null) {
+            try {
+                return response.body().string();
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
+        return "";
     }
 }

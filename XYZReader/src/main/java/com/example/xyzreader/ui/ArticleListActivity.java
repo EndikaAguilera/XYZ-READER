@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.LoaderManager;
@@ -160,13 +161,14 @@ public class ArticleListActivity extends AppCompatActivity implements
         mSwipeRefreshLayout.setRefreshing(mIsRefreshing);
     }
 
+    @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return ArticleLoader.newAllArticlesInstance(this);
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         Adapter adapter = new Adapter(data);
         adapter.setHasStableIds(true);
         mRecyclerView.setAdapter(adapter);
@@ -178,7 +180,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         if (mRecyclerView != null)
             mRecyclerView.setAdapter(null);
     }
@@ -196,8 +198,9 @@ public class ArticleListActivity extends AppCompatActivity implements
             return mCursor.getLong(ArticleLoader.Query._ID);
         }
 
+        @NonNull
         @Override
-        public ArticleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public ArticleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
             final ArticleViewHolder vh = new ArticleViewHolder(view);
             view.setOnClickListener(new View.OnClickListener() {
@@ -269,7 +272,7 @@ public class ArticleListActivity extends AppCompatActivity implements
         }
 
         @Override
-        public void onBindViewHolder(ArticleViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull ArticleViewHolder holder, int position) {
             mCursor.moveToPosition(position);
 
             holder.titleView.setTypeface(getSerifTypeFace());
@@ -278,16 +281,18 @@ public class ArticleListActivity extends AppCompatActivity implements
             holder.titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
             Date publishedDate = parsePublishedDate();
             if (!publishedDate.before(START_OF_EPOCH.getTime())) {
-                holder.subtitleView.setText(DateUtils.getRelativeTimeSpanString(
+                String str = DateUtils.getRelativeTimeSpanString(
                         publishedDate.getTime(),
                         System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
                         DateUtils.FORMAT_ABBREV_ALL).toString()
                         + "\nby "
-                        + mCursor.getString(ArticleLoader.Query.AUTHOR));
+                        + mCursor.getString(ArticleLoader.Query.AUTHOR);
+                holder.subtitleView.setText(str);
             } else {
-                holder.subtitleView.setText(outputFormat.format(publishedDate)
+                String str = outputFormat.format(publishedDate)
                         + "\nby "
-                        + mCursor.getString(ArticleLoader.Query.AUTHOR));
+                        + mCursor.getString(ArticleLoader.Query.AUTHOR);
+                holder.subtitleView.setText(str);
             }
 
             GlideApp.with(ArticleListActivity.this)
