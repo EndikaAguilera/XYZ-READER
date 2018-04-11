@@ -47,6 +47,7 @@ public class PageSplitter {
                 lineSpacingExtra,
                 false
         );
+        
         int startLine = 0;
         while (startLine < staticLayout.getLineCount()) {
             int startLineTop = staticLayout.getLineTop(startLine);
