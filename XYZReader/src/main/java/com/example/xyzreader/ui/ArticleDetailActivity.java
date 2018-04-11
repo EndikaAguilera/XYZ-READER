@@ -349,7 +349,7 @@ public class ArticleDetailActivity extends AppCompatActivity implements
                     //.circleCrop()
                     .override(Target.SIZE_ORIGINAL)
                     .into(mPhotoView);
-            
+
             if (mLoadTask != null && !mLoadTask.isCancelled()) {
                 mLoadTask.cancel(true);
                 mLoadTask = null;
